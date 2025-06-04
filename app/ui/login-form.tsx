@@ -15,7 +15,20 @@ import { useSearchParams } from 'next/navigation';
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+
+  const action = async (state: string | undefined, formData: FormData) => {
+    try {
+      await authenticate(formData);
+      return undefined;
+    } catch (error) {
+      if (error instanceof Error) {
+        return error.message;
+      }
+      return 'An unexpected error occurred.';
+    }
+  };
+
+  const [errorMessage, dispatch] = useFormState(action, undefined);
 
   return (
     <form action={dispatch} className="space-y-3" method="POST">
@@ -85,9 +98,9 @@ export default function LoginForm() {
 
 function LoginButton() {
   const { pending } = useFormStatus();
-  
+
   return (
-    <Button className="mt-4 w-full" aria-disabled={pending}>
+    <Button className="mt-4 w-full" aria-disabled={pending} disabled={pending}>
       Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
     </Button>
   );

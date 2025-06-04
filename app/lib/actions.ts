@@ -28,13 +28,13 @@ const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 export async function createInvoice(formData: FormData): Promise<void> {
   const validatedFields = CreateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
+    customerId: formData.get('customerId')?.toString(),
+    amount: formData.get('amount') ? Number(formData.get('amount')) : undefined,
+    status: formData.get('status')?.toString(),
   });
 
   if (!validatedFields.success) {
-    // You could throw or handle errors differently
+    // You could extract and throw specific error messages if needed
     throw new Error('Missing Fields. Failed to Create Invoice.');
   }
 
@@ -58,9 +58,9 @@ export async function createInvoice(formData: FormData): Promise<void> {
 
 export async function updateInvoice(id: string, formData: FormData): Promise<void> {
   const validatedFields = UpdateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
+    customerId: formData.get('customerId')?.toString(),
+    amount: formData.get('amount') ? Number(formData.get('amount')) : undefined,
+    status: formData.get('status')?.toString(),
   });
 
   if (!validatedFields.success) {
@@ -96,20 +96,37 @@ export async function deleteInvoice(id: string): Promise<void> {
 }
 
 // Authentication action
-export async function authenticate(formData: FormData): Promise<void> {
+export async function authenticate(formData: FormData): Promise<string | undefined> {
+  const email = formData.get('email')?.toString();
+  const password = formData.get('password')?.toString();
+  const redirectTo = formData.get('redirectTo')?.toString() || '/dashboard';
+
+  if (!email || !password) {
+    return 'Email and password are required.';
+  }
+
   try {
-    await signIn('credentials', {
-      email: formData.get('email')?.toString(),
-      password: formData.get('password')?.toString(),
-      redirectTo: formData.get('redirectTo')?.toString() || '/dashboard',
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false, // do not redirect here, handle redirect manually
     });
+
+    if (!result || !result.ok) {
+      // You can check result.error for specific error string if your auth system provides it
+      return 'Invalid email or password.';
+    }
+
+    // On success, redirect manually
+    redirect(redirectTo);
+    return undefined; // no error message
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
-          throw new Error('Invalid credentials.');
+          return 'Invalid credentials.';
         default:
-          throw new Error('Something went wrong.');
+          return 'Something went wrong.';
       }
     }
     throw error;
