@@ -1,18 +1,24 @@
-'use client'; // Add this at the very top
+"use client"; // Add this at the very top
 
 import {
   UserGroupIcon,
   HomeIcon,
   DocumentDuplicateIcon,
-} from '@heroicons/react/24/outline';
-import Link from 'next/link'; // Import Link
-import { usePathname } from 'next/navigation'; // Import usePathname
-import clsx from 'clsx'; // Import clsx for conditional classes
+  UserIcon,
+} from "@heroicons/react/24/outline";
+import Link from "next/link"; // Import Link
+import { usePathname } from "next/navigation"; // Import usePathname
+import clsx from "clsx"; // Import clsx for conditional classes
 
 const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon },
-  { name: 'Invoices', href: '/dashboard/invoices', icon: DocumentDuplicateIcon },
-  { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
+  { name: "Home", href: "/dashboard", icon: HomeIcon },
+  {
+    name: "Invoices",
+    href: "/dashboard/invoices",
+    icon: DocumentDuplicateIcon,
+  },
+  { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
+  { name: "Profile", href: "/dashboard/profile", icon: UserIcon },
 ];
 
 export default function NavLinks() {
